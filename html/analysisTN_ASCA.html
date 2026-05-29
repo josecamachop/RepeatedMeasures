@@ -1,0 +1,529 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      -->
+<title>Real example. "ANOVA Simultaneous Component Analysis for Multivariate Repeated Measures Studies"</title>
+<meta name="generator" content="MATLAB 24.2">
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+<meta name="DC.date" content="2026-05-29">
+<meta name="DC.source" content="analysisTN_ASCA.m">
+<style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style>
+</head>
+<body>
+<div class="content">
+<h1>Real example. "ANOVA Simultaneous Component Analysis for Multivariate Repeated Measures Studies"</h1>
+<!--introduction-->
+<p>Submitted to Chemometrics and Intelligen Laboratory Systems. 2026.</p>
+<p>Please, reference the following paper if using this data:</p>
+<p>C. Diaz, C. Gonz&aacute;lez-Olmedo, L. D&iacute;az-Beltr&aacute;n, J. Camacho, P. Mena Garc&iacute;a, A. Mart&iacute;n-Bl&aacute;zquez, M. Fern&aacute;ndez-Navarro, A. L. Ortega-Granados, F. G&aacute;lvez-Montosa, J. A. Marchal, et al., &ldquo;Predicting dynamic response to neoadjuvant chemotherapy in breast cancer: a novel metabolomics approach,&rdquo; Molecular Oncology, vol. 16, no. 14, pp. 2658&ndash;2671, 2022.</p>
+<p>Dependencies:</p>
+<pre class="language-matlab">- MEDA Toolbox <span class="string">v1.13</span> <span class="string">at</span> <span class="string">https://github.com/codaslab/MEDA-Toolbox</span>
+</pre>
+<p>coded by: Jose Camacho (<a href="mailto:josecamacho@ugr.es">josecamacho@ugr.es</a>) last modification: 29/May/2026</p>
+<p>Copyright (C) 2026 University of Granada, Granada</p>
+<p>This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.</p>
+<p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.</p>
+<p>You should have received a copy of the GNU General Public License along with this program. If not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.</p>
+<!--/introduction-->
+<h2>Contents</h2>
+<div>
+<ul>
+<li>
+<a href="#1">Inicialization</a>
+</li>
+<li>
+<a href="#2">Check outliers with PCA</a>
+</li>
+<li>
+<a href="#3">Delete outliers</a>
+</li>
+<li>
+<a href="#4">Real ASCA</a>
+</li>
+<li>
+<a href="#5">Switch classes at random</a>
+</li>
+<li>
+<a href="#6">ASCA Model M1 considered X = 1mT + A + B + AB + E, Statistic MSa</a>
+</li>
+<li>
+<a href="#7">ASCA Model M2 considered X = 1mT + A + B + C + AB + E, Statistic F = MSa/MSe</a>
+</li>
+<li>
+<a href="#8">ASCA Model M3 considered X = 1mT + A + B + C(A) + AB + E, Statistic MSa</a>
+</li>
+<li>
+<a href="#9">ASCA Model M4 considered X = 1mT + A + B + C(A) + AB + E, Statistic F = MSa/MSe</a>
+</li>
+<li>
+<a href="#10">ASCA Model M5 considered X = 1mT + A + B + C(A) + AB + E, Statistic F = MSa/MSc(a)</a>
+</li>
+</ul>
+</div>
+<h2 id="1">Inicialization</h2>
+<pre class="codeinput">clear
+close <span class="string">all</span>
+clc
+
+data = importdata(<span class="string">'TN_data.xlsx'</span>);
+
+X = data.data;
+obs_l = data.textdata(2:end,1);
+class = data.textdata(2:end,2);
+time = X(2:end,1);
+tl = {<span class="string">'Basal'</span>,<span class="string">'Presurgery'</span>,<span class="string">'Postsurgery'</span>};
+timel = tl(time)';
+<span class="keyword">for</span> i=1:length(X(1,:))
+    var_l{i} = num2str(X(1,i));
+<span class="keyword">end</span>
+X = X(2:end,2:end);
+var_l(1) = [];
+pac_l = obs_l;
+<span class="keyword">for</span> i=1:length(pac_l)
+    pac_l{i} = pac_l{i}(1:5);
+<span class="keyword">end</span>
+
+F = [string(class), string(timel), string(pac_l)];
+
+pvalue = 0.05
+</pre>
+<pre class="codeoutput">
+pvalue =
+
+    0.0500
+
+</pre>
+<h2 id="2">Check outliers with PCA</h2>
+<pre class="codeinput">scoresPca(X,<span class="string">'PCs'</span>,1:2,<span class="string">'Preprocessing'</span>,2,<span class="string">'ObsClass'</span>,class,<span class="string">'ObsLabel'</span>,pac_l);
+saveas(gcf,<span class="string">'./Figures/pca12'</span>)
+saveas(gcf,<span class="string">'./Figures/pca12.eps'</span>,<span class="string">'epsc'</span>)
+
+[Dst,Qst] = mspcPca(X,<span class="string">'Preprocessing'</span>,2,<span class="string">'PCs'</span>,1:2,<span class="string">'ObsClass'</span>,class,<span class="string">'ObsLabel'</span>,pac_l,<span class="string">'BlurIndex'</span>,0.5);
+ylabel(<span class="string">'Q-statistic'</span>);xlabel(<span class="string">'D-statistic'</span>)
+saveas(gcf,<span class="string">'./Figures/pca-mspc'</span>)
+saveas(gcf,<span class="string">'./Figures/pca-mspc.eps'</span>,<span class="string">'epsc'</span>)
+</pre>
+<img vspace="5" hspace="5" src="analysisTN_ASCA_01.png" alt=""> <img vspace="5" hspace="5" src="analysisTN_ASCA_02.png" alt=""> <h2 id="3">Delete outliers</h2>
+<pre class="codeinput">indO = find(ismember(F(:,3),<span class="string">'M0357'</span>)); <span class="comment">% Outlier</span>
+X(indO,:) = [];
+F(indO,:) = [];
+obs_l(indO) = [];
+class(indO) = [];
+time(indO) = [];
+timel(indO) = [];
+pac_l(indO) = [];
+
+indO = find(ismember(F(:,3),<span class="string">'M0370'</span>)); <span class="comment">% Outlier</span>
+X(indO,:) = [];
+F(indO,:) = [];
+obs_l(indO) = [];
+class(indO) = [];
+time(indO) = [];
+timel(indO) = [];
+pac_l(indO) = [];
+
+indO = find(ismember(F(:,3),<span class="string">'M0291'</span>)); <span class="comment">% Outlier</span>
+X(indO,:) = [];
+F(indO,:) = [];
+obs_l(indO) = [];
+class(indO) = [];
+time(indO) = [];
+timel(indO) = [];
+pac_l(indO) = [];
+</pre>
+<h2 id="4">Real ASCA</h2>
+<pre class="codeinput">[table, struct] = parglm(X, F,<span class="string">'Preprocessing'</span>,2,<span class="string">'Model'</span>, [1 2], <span class="string">'Fmtc'</span>, 0, <span class="string">'Nested'</span>, [1 3], <span class="keyword">...</span>
+    <span class="string">'Random'</span>, [0 0 1]);
+table.Source(1:3)={<span class="string">"Responder"</span>,<span class="string">"Time"</span>,<span class="string">"Patient"</span>}
+
+table2latex(table, <span class="string">'ASCA0.tex'</span>, <span class="string">'%.2f'</span>);
+</pre>
+<pre class="codeoutput">
+table =
+
+  6&times;7 table
+
+          Source           SumSq     PercSumSq    df    MeanSq      F        Pvalue 
+    ___________________    ______    _________    __    ______    ______    ________
+
+    {["Responder"    ]}     451.1      7.571       1     451.1    2.7985     0.01998
+    {["Time"         ]}    150.01     2.5177       2    75.006      0.92     0.58741
+    {["Patient"      ]}    2579.1     43.286      16    161.19    1.9772    0.000999
+    {'Interaction 1-2'}    204.65     3.4348       2    102.33    1.2551     0.24376
+    {'Residuals'      }    2608.9     43.786      32    81.528       NaN         NaN
+    {'Total'          }    5958.3      100.6      53    112.42       NaN         NaN
+
+</pre>
+<h2 id="5">Switch classes at random</h2>
+<pre class="codeinput">rng(0); <span class="comment">%set the random seed</span>
+
+up = unique(pac_l);
+uc = unique(class);
+<span class="keyword">for</span> u = 1:length(up)
+    class(find(ismember(pac_l,up(u)))) = uc((randn&lt;=0)+1);
+<span class="keyword">end</span>
+
+Ffalse = [string(class), string(timel), string(pac_l)];
+</pre>
+<h2 id="6">ASCA Model M1 considered X = 1mT + A + B + AB + E, Statistic MSa</h2>
+<pre class="codeinput">[table, struct] = parglm(X, Ffalse,<span class="string">'Preprocessing'</span>,2,<span class="string">'Model'</span>, [1 2], <span class="string">'Fmtc'</span>, 0, <span class="string">'Nested'</span>, [1 3], <span class="string">'Ts'</span>, 0, <span class="keyword">...</span>
+    <span class="string">'Random'</span>, [0 0 1]);
+table.Source(1:3)={<span class="string">"Responder"</span>,<span class="string">"Time"</span>,<span class="string">"Patient"</span>}
+
+table2latex(table, <span class="string">'ASCA1.tex'</span>, <span class="string">'%.2f'</span>);
+</pre>
+<pre class="codeoutput">
+table =
+
+  6&times;7 table
+
+          Source           SumSq     PercSumSq    df    MeanSq      F        Pvalue 
+    ___________________    ______    _________    __    ______    ______    ________
+
+    {["Responder"    ]}    225.36     3.7893       1    225.36    2.7358    0.055944
+    {["Time"         ]}    144.37     2.4275       2    72.183    0.8763      0.9001
+    {["Patient"      ]}    2793.7     46.976      16    174.61    2.1197    0.000999
+    {'Interaction 1-2'}    176.24     2.9635       2     88.12    1.0698     0.77123
+    {'Residuals'      }    2635.9     44.322      32    82.372       NaN         NaN
+    {'Total'          }    5947.1     100.48      53    112.21       NaN         NaN
+
+</pre>
+<h2 id="7">ASCA Model M2 considered X = 1mT + A + B + C + AB + E, Statistic F = MSa/MSe</h2>
+<pre class="codeinput">[table, struct] = parglm(X, Ffalse,<span class="string">'Preprocessing'</span>,2,<span class="string">'Model'</span>, [1 2], <span class="string">'Fmtc'</span>, 0, <span class="string">'Nested'</span>, [1 3], <span class="keyword">...</span>
+    <span class="string">'Random'</span>, [0 0 1]);
+table.Source(1:3)={<span class="string">"Responder"</span>,<span class="string">"Time"</span>,<span class="string">"Patient"</span>}
+
+table2latex(table, <span class="string">'ASCA2.tex'</span>, <span class="string">'%.2f'</span>);
+</pre>
+<pre class="codeoutput">
+table =
+
+  6&times;7 table
+
+          Source           SumSq     PercSumSq    df    MeanSq      F        Pvalue 
+    ___________________    ______    _________    __    ______    ______    ________
+
+    {["Responder"    ]}    225.36     3.7893       1    225.36    1.2907     0.25574
+    {["Time"         ]}    144.37     2.4275       2    72.183    0.8763     0.63437
+    {["Patient"      ]}    2793.7     46.976      16    174.61    2.1197    0.000999
+    {'Interaction 1-2'}    176.24     2.9635       2     88.12    1.0698     0.37862
+    {'Residuals'      }    2635.9     44.322      32    82.372       NaN         NaN
+    {'Total'          }    5947.1     100.48      53    112.21       NaN         NaN
+
+</pre>
+<h2 id="8">ASCA Model M3 considered X = 1mT + A + B + C(A) + AB + E, Statistic MSa</h2>
+<pre class="codeinput">[table, struct] = parglm(X, Ffalse,<span class="string">'Preprocessing'</span>,2,<span class="string">'Model'</span>, [1 2], <span class="string">'Fmtc'</span>, 0, <span class="string">'Nested'</span>, [1 3], <span class="string">'Ts'</span>, 0, <span class="keyword">...</span>
+    <span class="string">'Random'</span>, [0 0 1]);
+table.Source(1:3)={<span class="string">"Responder"</span>,<span class="string">"Time"</span>,<span class="string">"Patient"</span>}
+
+table2latex(table, <span class="string">'ASCA3.tex'</span>, <span class="string">'%.2f'</span>);
+</pre>
+<pre class="codeoutput">
+table =
+
+  6&times;7 table
+
+          Source           SumSq     PercSumSq    df    MeanSq      F        Pvalue 
+    ___________________    ______    _________    __    ______    ______    ________
+
+    {["Responder"    ]}    225.36     3.7893       1    225.36    2.7358    0.053946
+    {["Time"         ]}    144.37     2.4275       2    72.183    0.8763     0.91908
+    {["Patient"      ]}    2793.7     46.976      16    174.61    2.1197    0.000999
+    {'Interaction 1-2'}    176.24     2.9635       2     88.12    1.0698     0.76324
+    {'Residuals'      }    2635.9     44.322      32    82.372       NaN         NaN
+    {'Total'          }    5947.1     100.48      53    112.21       NaN         NaN
+
+</pre>
+<h2 id="9">ASCA Model M4 considered X = 1mT + A + B + C(A) + AB + E, Statistic F = MSa/MSe</h2>
+<pre class="codeinput">[table, struct] = parglm(X, Ffalse,<span class="string">'Preprocessing'</span>,2,<span class="string">'Model'</span>, [1 2], <span class="string">'Fmtc'</span>, 0, <span class="string">'Nested'</span>, [1 3], <span class="keyword">...</span>
+    <span class="string">'Random'</span>, [0 0 0]);
+table.Source(1:3)={<span class="string">"Responder"</span>,<span class="string">"Time"</span>,<span class="string">"Patient"</span>}
+
+table2latex(table, <span class="string">'ASCA4.tex'</span>, <span class="string">'%.2f'</span>);
+</pre>
+<pre class="codeoutput">
+table =
+
+  6&times;7 table
+
+          Source           SumSq     PercSumSq    df    MeanSq      F        Pvalue 
+    ___________________    ______    _________    __    ______    ______    ________
+
+    {["Responder"    ]}    225.36     3.7893       1    225.36    2.7358    0.018981
+    {["Time"         ]}    144.37     2.4275       2    72.183    0.8763     0.64835
+    {["Patient"      ]}    2793.7     46.976      16    174.61    2.1197    0.000999
+    {'Interaction 1-2'}    176.24     2.9635       2     88.12    1.0698      0.3986
+    {'Residuals'      }    2635.9     44.322      32    82.372       NaN         NaN
+    {'Total'          }    5947.1     100.48      53    112.21       NaN         NaN
+
+</pre>
+<h2 id="10">ASCA Model M5 considered X = 1mT + A + B + C(A) + AB + E, Statistic F = MSa/MSc(a)</h2>
+<pre class="codeinput">[table, struct] = parglm(X, Ffalse,<span class="string">'Preprocessing'</span>,2,<span class="string">'Model'</span>, [1 2], <span class="string">'Fmtc'</span>, 0, <span class="string">'Nested'</span>, [1 3], <span class="keyword">...</span>
+    <span class="string">'Random'</span>, [0 0 1]);
+table.Source(1:3)={<span class="string">"Responder"</span>,<span class="string">"Time"</span>,<span class="string">"Patient"</span>}
+
+table2latex(table, <span class="string">'ASCA5.tex'</span>, <span class="string">'%.2f'</span>);
+</pre>
+<pre class="codeoutput">
+table =
+
+  6&times;7 table
+
+          Source           SumSq     PercSumSq    df    MeanSq      F        Pvalue 
+    ___________________    ______    _________    __    ______    ______    ________
+
+    {["Responder"    ]}    225.36     3.7893       1    225.36    1.2907     0.24076
+    {["Time"         ]}    144.37     2.4275       2    72.183    0.8763     0.63237
+    {["Patient"      ]}    2793.7     46.976      16    174.61    2.1197    0.000999
+    {'Interaction 1-2'}    176.24     2.9635       2     88.12    1.0698      0.4016
+    {'Residuals'      }    2635.9     44.322      32    82.372       NaN         NaN
+    {'Total'          }    5947.1     100.48      53    112.21       NaN         NaN
+
+</pre>
+<p class="footer">
+<br>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2024b</a>
+<br>
+</p>
+</div>
+<!--
+##### SOURCE BEGIN #####
+%% Real example. "ANOVA Simultaneous Component Analysis for Multivariate Repeated Measures Studies" 
+% Submitted to Chemometrics and Intelligen Laboratory Systems. 2026. 
+%
+% Please, reference the following paper if using this data:
+%
+% C. Diaz, C. González-Olmedo, L. Díaz-Beltrán, J. Camacho, P. Mena García, 
+% A. Martín-Blázquez, M. Fernández-Navarro, A. L. Ortega-Granados, F. 
+% Gálvez-Montosa, J. A. Marchal, et al., “Predicting dynamic response to 
+% neoadjuvant chemotherapy in breast cancer: a novel metabolomics 
+% approach,” Molecular Oncology, vol. 16, no. 14, pp. 2658–2671, 2022.
+%
+% Dependencies: 
+%
+%   - MEDA Toolbox v1.13 at https://github.com/codaslab/MEDA-Toolbox    
+%
+% coded by: Jose Camacho (josecamacho@ugr.es)
+% last modification: 29/May/2026
+%
+% Copyright (C) 2026  University of Granada, Granada
+% 
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+% 
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% 
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+%% Inicialization
+
+clear
+close all
+clc
+
+data = importdata('TN_data.xlsx');
+
+X = data.data;
+obs_l = data.textdata(2:end,1);
+class = data.textdata(2:end,2); 
+time = X(2:end,1);
+tl = {'Basal','Presurgery','Postsurgery'};
+timel = tl(time)';
+for i=1:length(X(1,:))
+    var_l{i} = num2str(X(1,i));
+end
+X = X(2:end,2:end);
+var_l(1) = [];
+pac_l = obs_l;
+for i=1:length(pac_l)
+    pac_l{i} = pac_l{i}(1:5);
+end
+
+F = [string(class), string(timel), string(pac_l)];
+
+pvalue = 0.05
+
+
+%% Check outliers with PCA
+
+scoresPca(X,'PCs',1:2,'Preprocessing',2,'ObsClass',class,'ObsLabel',pac_l);
+saveas(gcf,'./Figures/pca12')
+saveas(gcf,'./Figures/pca12.eps','epsc')
+
+[Dst,Qst] = mspcPca(X,'Preprocessing',2,'PCs',1:2,'ObsClass',class,'ObsLabel',pac_l,'BlurIndex',0.5);
+ylabel('Q-statistic');xlabel('D-statistic')
+saveas(gcf,'./Figures/pca-mspc')
+saveas(gcf,'./Figures/pca-mspc.eps','epsc')
+
+
+%% Delete outliers 
+
+indO = find(ismember(F(:,3),'M0357')); % Outlier
+X(indO,:) = [];
+F(indO,:) = [];
+obs_l(indO) = [];
+class(indO) = [];
+time(indO) = [];
+timel(indO) = [];
+pac_l(indO) = [];
+
+indO = find(ismember(F(:,3),'M0370')); % Outlier
+X(indO,:) = [];
+F(indO,:) = [];
+obs_l(indO) = [];
+class(indO) = [];
+time(indO) = [];
+timel(indO) = [];
+pac_l(indO) = [];
+
+indO = find(ismember(F(:,3),'M0291')); % Outlier
+X(indO,:) = [];
+F(indO,:) = [];
+obs_l(indO) = [];
+class(indO) = [];
+time(indO) = [];
+timel(indO) = [];
+pac_l(indO) = [];
+
+
+%% Real ASCA
+
+[table, struct] = parglm(X, F,'Preprocessing',2,'Model', [1 2], 'Fmtc', 0, 'Nested', [1 3], ...
+    'Random', [0 0 1]);
+table.Source(1:3)={"Responder","Time","Patient"}
+
+table2latex(table, 'ASCA0.tex', '%.2f');
+
+
+%% Switch classes at random
+
+rng(0); %set the random seed
+
+up = unique(pac_l);
+uc = unique(class);
+for u = 1:length(up)
+    class(find(ismember(pac_l,up(u)))) = uc((randn<=0)+1);
+end
+
+Ffalse = [string(class), string(timel), string(pac_l)];
+
+%% ASCA Model M1 considered X = 1mT + A + B + AB + E, Statistic MSa
+
+[table, struct] = parglm(X, Ffalse,'Preprocessing',2,'Model', [1 2], 'Fmtc', 0, 'Nested', [1 3], 'Ts', 0, ...
+    'Random', [0 0 1]);
+table.Source(1:3)={"Responder","Time","Patient"}
+
+table2latex(table, 'ASCA1.tex', '%.2f');
+
+
+%% ASCA Model M2 considered X = 1mT + A + B + C + AB + E,  Statistic F = MSa/MSe 
+
+[table, struct] = parglm(X, Ffalse,'Preprocessing',2,'Model', [1 2], 'Fmtc', 0, 'Nested', [1 3], ...
+    'Random', [0 0 1]);
+table.Source(1:3)={"Responder","Time","Patient"}
+
+table2latex(table, 'ASCA2.tex', '%.2f');
+
+
+%% ASCA Model M3 considered X = 1mT + A + B + C(A) + AB + E, Statistic MSa
+
+[table, struct] = parglm(X, Ffalse,'Preprocessing',2,'Model', [1 2], 'Fmtc', 0, 'Nested', [1 3], 'Ts', 0, ...
+    'Random', [0 0 1]);
+table.Source(1:3)={"Responder","Time","Patient"}
+
+table2latex(table, 'ASCA3.tex', '%.2f');
+
+
+%% ASCA Model M4 considered X = 1mT + A + B + C(A) + AB + E, Statistic F = MSa/MSe
+
+[table, struct] = parglm(X, Ffalse,'Preprocessing',2,'Model', [1 2], 'Fmtc', 0, 'Nested', [1 3], ...
+    'Random', [0 0 0]);
+table.Source(1:3)={"Responder","Time","Patient"}
+
+table2latex(table, 'ASCA4.tex', '%.2f');
+
+
+%% ASCA Model M5 considered X = 1mT + A + B + C(A) + AB + E, Statistic F = MSa/MSc(a)
+
+[table, struct] = parglm(X, Ffalse,'Preprocessing',2,'Model', [1 2], 'Fmtc', 0, 'Nested', [1 3], ...
+    'Random', [0 0 1]);
+table.Source(1:3)={"Responder","Time","Patient"}
+
+table2latex(table, 'ASCA5.tex', '%.2f');
+
+##### SOURCE END #####
+-->
+</body>
+</html>

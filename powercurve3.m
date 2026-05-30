@@ -1,9 +1,5 @@
 function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 
-% Modification from powercurve at MEDA Toolbox (see lines 585 to 590), 
-% data is generated with a nested individual, but the models consider this 
-% factor crossed to the others.
-%
 % ASCA Power Curves (PCs). We derive four different types of PCs organized 
 % in two taxonomies. On the one hand, we distinguish Population PCs from 
 % Sample PCs, where the former are derived from population parameters and 
@@ -67,9 +63,9 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 % 'Alpha': [1x1] significance level (0.05 by defult)
 %
 % 'Preprocessing': [1x1] preprocesing:
-%       0: no preprocessing 
+%       0: no preprocessing (default for input as a struct)
 %       1: mean-centering 
-%       2: auto-scaling (default)
+%       2: auto-scaling (default for input as data)
 %
 % 'Permutations': [1x1] number of permutations (1000 by default)
 %
@@ -86,8 +82,8 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 % 
 %
 % 'Random': [1xF] whether factors are fixed or random
-%       0: fixed (default)
-%       1: random
+%       0: fixed 
+%       1: random (default, so far the simulation is always random)
 %
 % 'Fmtc': [1x1] correct for multiple-tesis when multifactorial (multi-way)
 % analysis
@@ -101,11 +97,11 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 %       0: sum/deviation coding (default)
 %       1: reference coding (reference is the last level)
 %
-% 'Nested': [nx2] pairs of neted factors, e.g., if factor 2 is nested in 1,
-%   and 3 in 2, then nested = [1 2; 2 3]
+% 'Nested': [1x2] pair of netsed factors, e.g., if factor 2 is nested in 1, 
+%       then nested = [1 2]
 %
 % 'RepFactor': [1x1] index of the factor with replicates (only used for type
-% 3), 0 by default, meaning no factor with replicates
+%       3), 0 by default, meaning no factor with replicates
 %
 %
 % OUTPUTS:
@@ -138,10 +134,10 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 6/Apr/2025
-% Dependencies: Matlab R2017b, MEDA v1.8
+% Last modification: 26/May/2026
+% Dependencies: Matlab R2024b, MEDA v1.13
 %
-% Copyright (C) 2025  University of Granada, Granada
+% Copyright (C) 2026  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -184,7 +180,7 @@ addParameter(p,'Repetitions',1000);
 addParameter(p,'RamdonGenC',@()1);
 addParameter(p,'Theta',[]);
 addParameter(p,'Alpha',0.05);
-addParameter(p,'Preprocessing',2);
+addParameter(p,'Preprocessing',[]);
 addParameter(p,'Permutations',1000);
 addParameter(p,'Ts',2);
 addParameter(p,'Ordinal',zeros(1,size(F,2)));
@@ -193,6 +189,7 @@ addParameter(p,'Fmtc',0);
 addParameter(p,'Coding',zeros(1,size(F,2)));
 addParameter(p,'Nested',[]);
 addParameter(p,'RepFactor',0);
+addParameter(p,'NPCs',min(10,M)); %!!!HERE
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -212,6 +209,15 @@ fmtc = p.Results.Fmtc;
 coding = p.Results.Coding;
 nested = p.Results.Nested;
 replicates = p.Results.RepFactor;
+npcs = p.Results.NPCs; %!!!HERE
+
+if isempty(prep)
+    if isstruct(X)
+        prep = 0;
+    else
+        prep = 2;
+    end
+end
 
 if isempty(theta)
     if type == 2
@@ -266,7 +272,7 @@ assert (isequal(size(random), [1 size(F,2)]), 'Dimension Error: parameter ''Rand
 assert (isequal(size(fmtc), [1 1]), 'Dimension Error: parameter ''Fmtc'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(coding), [1 size(F,2)]), 'Dimension Error: parameter ''Coding'' must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(replicates), [1 1]), 'Dimension Error: parameter ''Replicates'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-
+if ~isempty(nested), assert (isequal(size(nested), [1 2]), 'Dimension Error: parameter ''Nested'' must be 1-by-2: Only one nested factor allowed. Type ''help %s'' for more info.', routine(1).name); end
 
 %% Main code
                   
@@ -300,7 +306,9 @@ powercurveo.nested         = nested;
 powercurveo.nRep          = nRep;
 powercurveo.theta          = theta;
 powercurveo.alpha          = alpha;
-powercurveo.randg          = randg;
+powercurveo.randv          = randv;
+powercurveo.model          = model;
+powercurveo.random        = random;
 powercurveo.randgC         = randgC;
 powercurveo.type           = type;
 powercurveo.replicates     = replicates;
@@ -446,10 +454,10 @@ if ~isstruct(X) % Sample PCs
 
     % Create Effect Matrices
     if prep
-        parglmo.inter = D(:,1)*B(1,:);
-        SSQinter = sum(sum(parglmo.inter.^2));
+        powercurveo.inter = D(:,1)*B(1,:);
+        SSQinter = sum(sum(powercurveo.inter.^2));
     else
-        parglmo.inter = 0;
+        powercurveo.inter = 0;
         SSQinter = 0;
     end   
     SSQresiduals = sum(sum(Xresiduals.^2));
@@ -505,16 +513,121 @@ end
 %% Compute the Power Curve
  
 eD = zeros(length(theta),length(powercurveo.coeffs),nRep);
-
-F2 = F;   
-powercurveo2 = powercurveo;
-for i2=1:nRep
+T = {};
+parfor i2=1:nRep
     
     %disp(i2)
     
     rng(i2);
     
-    if type == 1 % Relative PCs
+    [eD(:,:,i2),T(i2,:)] = corePower(powercurveo,F);
+    
+end
+powercurveo.T = T;
+
+PCmean = mean(eD,3);
+PCrep = eD; 
+
+%% Show results
+
+figure;
+spcBootstrap(theta,PCrep,nRep,true,0.05,false);    
+if type == 1 % Relative PCs
+    
+    xlabel('Effect size (\theta)','FontSize', 16);
+    
+    if isstruct(X)
+        title('Relative Population Curve','FontSize', 16);
+    else
+        title('Relative Sample Curve','FontSize', 16);
+    end
+else
+    xlabel('Number of replicates (\eta)','FontSize', 16);
+    
+    if isstruct(X)
+        title('Absolute Population Curve','FontSize', 16);
+    else
+        title('Absolute Sample Curve','FontSize', 16);
+    end
+end
+ylabel('Power','FontSize', 16);
+
+end
+
+%% Auxiliary function for interactions
+
+function interactions = allinter(factors,order)
+    
+    if order > 2
+        interactions = allinter(factors,order-1);
+        for i = 1:length(interactions)
+            for j = factors(find(factors > max(interactions{i})))
+                interactions{end+1} = [interactions{i} j];
+            end
+        end
+    else
+        interactions = {};
+        for i = factors
+            for j = factors(find(factors >i))
+                interactions{end+1} = [i j];
+            end
+        end
+    end
+    
+end
+    
+        
+function Dout = computaDint(interactions,factors,D) % Compute coding matrix
+
+    if length(interactions)>1
+        deepD = computaDint(interactions(2:end),factors,D);
+        Dout = [];
+        for k = factors{interactions(1)}.Dvars
+            for l = 1:size(deepD,2)
+                Dout(:,end+1) = D(:,k).* deepD(:,l);
+            end
+        end
+    else
+        Dout = D(:,factors{interactions}.Dvars);
+    end
+
+end
+
+
+function [eD,Ts] = corePower(powercurveo,F)
+
+    F2 = F;   
+    powercurveo2 = powercurveo;
+
+    nested = powercurveo.nested;
+    type = powercurveo.type;
+    X = powercurveo.data;
+    nFactors = powercurveo.nFactors;
+    nInteractions = powercurveo.nInteractions;
+    randv = powercurveo.randv;
+    randgC = powercurveo.randgC;
+    ordinal = powercurveo.ordinal;
+    theta = powercurveo.theta;
+    alpha = powercurveo.alpha;
+    model = powercurveo.model;
+    prep = powercurveo.prep;
+    nPerm = powercurveo.nPerm;
+    ts = powercurveo.ts;
+    random = powercurveo.random;
+    fmtc = powercurveo.fmtc;
+    coding = powercurveo.coding;
+
+    if isstruct(X)
+        N = X.N;
+        M = X.M;
+    else
+        N = size(X, 1);
+        M = size(X, 2);
+    end
+
+    eD = zeros(length(theta),length(powercurveo.coeffs));
+
+   if type == 1 % Relative PCs
         
         if isstruct(X) 
             for f = 1 : nFactors
@@ -549,7 +662,7 @@ for i2=1:nRep
                 powercurveo.interactions{i}.matrix = [];
                 uF = unique(Fi,'rows');
                 for n = 1: size(uF,1)
-                    ind = find(uF(n,1)==Fi(:,1)&uF(n,2)==Fi(:,2));
+                    ind = find(ismember(Fi, uF(n,:), 'rows'));
                     powercurveo.interactions{i}.matrix(ind,:) = ones(length(ind),1)*mati(n,:);
                 end
             end
@@ -570,7 +683,7 @@ for i2=1:nRep
         for a = 1:length(theta)
             Xnoise = randg(N,M); 
             Xnoise = randgC() * powercurveo.rescoef * sqrt(N)*Xnoise/norm(Xnoise,'fro'); 
-        
+
             Xm = Xnoise; %Xm = (1-theta(a))*Xnoise;
             Xm = Xm + theta(a)*Xstruct;
 
@@ -579,6 +692,7 @@ for i2=1:nRep
                     Xm = Xm + randgC() * powercurveo.coeffs(f) * powercurveo.factors{f}.matrix;
                 end
             end
+             
                         
             % Parallel GLM
             % Here!!! Model mismatch
@@ -586,11 +700,11 @@ for i2=1:nRep
             [T, parglmo] = parglm(Xm, F, 'Warning', false, 'Parallel', false, 'Model', model, 'Preprocessing', prep, 'Permutations', nPerm, 'Ts', ts, 'Ordinal', ordinal, 'Random', random, 'Fmtc', fmtc, 'Coding', coding, 'Nested', nested2);
             % End Here
 
-            powercurveo.T{i2,a} = T;
+            Ts{a} = T;
             
             for o = 1:length(powercurveo.coeffs)
                 if parglmo.p(o) <= alpha
-                    eD(a,o,i2) = 1;
+                    eD(a,o) = 1;
                 end
             end
         end
@@ -675,7 +789,7 @@ for i2=1:nRep
                     powercurveo.interactions{i}.matrix = [];
                     uF = unique(Fi,'rows');
                     for n = 1: size(uF,1)
-                        ind = find(uF(n,1)==Fi(:,1)&uF(n,2)==Fi(:,2));
+                        ind = find(ismember(Fi, uF(n,:), 'rows'));
                         powercurveo.interactions{i}.matrix(ind,:) = ones(length(ind),1)*mati(n,:);
                     end
                 end
@@ -756,91 +870,20 @@ for i2=1:nRep
             Xm = Xnoise + Xstruct;
             
             % Parallel GLM
-            [T, parglmo] = parglm(Xm, F, 'Model', model, 'Preprocessing', prep, 'Permutations', nPerm, 'Ts', ts, 'Ordinal', ordinal, 'Random', random, 'Fmtc', fmtc, 'Coding', coding, 'Nested', nested);
+            [T, parglmo] = parglm(Xm, F, 'Warning', false, 'Parallel', false, 'Model', model, 'Preprocessing', prep, 'Permutations', nPerm, 'Ts', ts, 'Ordinal', ordinal, 'Random', random, 'Fmtc', fmtc, 'Coding', coding, 'Nested', nested);
             
-            powercurveo.T{i2,a} = T;
+            Ts{a} = T;
             
             for o = 1:length(powercurveo.coeffs)
                 if parglmo.p(o) <= alpha
-                    eD(a,o,i2) = 1;
+                    eD(a,o) = 1;
                 end
             end
         end    
              
-    end
-    
-end
-
-PCmean = mean(eD,3);
-PCrep = eD; 
-
-%% Show results
-
-figure;
-spcBootstrap(theta,PCrep,nRep,true,0.05,false);    
-if type == 1 % Relative PCs
-    
-    xlabel('Effect size (\theta)','FontSize', 16);
-    
-    if isstruct(X)
-        title('Relative Population Curve','FontSize', 16);
-    else
-        title('Relative Sample Curve','FontSize', 16);
-    end
-else
-    xlabel('Number of replicates (\eta)','FontSize', 16);
-    
-    if isstruct(X)
-        title('Absolute Population Curve','FontSize', 16);
-    else
-        title('Absolute Sample Curve','FontSize', 16);
-    end
-end
-ylabel('Power','FontSize', 16);
+   end
 
 end
-
-%% Auxiliary function for interactions
-
-function interactions = allinter(factors,order)
-    
-    if order > 2
-        interactions = allinter(factors,order-1);
-        for i = 1:length(interactions)
-            for j = factors(find(factors > max(interactions{i})))
-                interactions{end+1} = [interactions{i} j];
-            end
-        end
-    else
-        interactions = {};
-        for i = factors
-            for j = factors(find(factors >i))
-                interactions{end+1} = [i j];
-            end
-        end
-    end
-    
-end
-    
-        
-function Dout = computaDint(interactions,factors,D) % Compute coding matrix
-
-    if length(interactions)>1
-        deepD = computaDint(interactions(2:end),factors,D);
-        Dout = [];
-        for k = factors{interactions(1)}.Dvars
-            for l = 1:size(deepD,2)
-                Dout(:,end+1) = D(:,k).* deepD(:,l);
-            end
-        end
-    else
-        Dout = D(:,factors{interactions}.Dvars);
-    end
-
-end
-
-
-
 
 
 

@@ -209,7 +209,6 @@ fmtc = p.Results.Fmtc;
 coding = p.Results.Coding;
 nested = p.Results.Nested;
 replicates = p.Results.RepFactor;
-npcs = p.Results.NPCs; %!!!HERE
 
 if isempty(prep)
     if isstruct(X)
@@ -512,18 +511,15 @@ end
 
 %% Compute the Power Curve
  
-% Here!!! LLM
-eD = zeros(length(theta),3*length(powercurveo.coeffs),nRep);
-% End Here
-
+eD = zeros(length(theta),length(powercurveo.coeffs),nRep);
 T = {};
-for i2=1:nRep
+parfor i2=1:nRep
     
     %disp(i2)
     
     rng(i2);
     
-    [eD(:,:,i2),T(i2,:)] = corePower(powercurveo,F,npcs); % HERE npcs
+    [eD(:,:,i2),T(i2,:)] = corePower(powercurveo,F);
     
 end
 powercurveo.T = T;
@@ -597,7 +593,7 @@ function Dout = computaDint(interactions,factors,D) % Compute coding matrix
 end
 
 
-function [eD,Ts] = corePower(powercurveo,F,npcs)
+function [eD,Ts] = corePower(powercurveo,F)
 
     F2 = F;   
     powercurveo2 = powercurveo;
@@ -697,63 +693,19 @@ function [eD,Ts] = corePower(powercurveo,F,npcs)
             end
              
                         
- % Parallel GLM
-            % Here!!! LLM
-            options.iterations = nPerm;
-            options.baseline = 'ucLDA'; % unconstrained (for main effect in A)
-            options.coding = 'ASCA'; % Use sum coding for the treatment factor
-            options.ncomp = npcs;
-            options.GLLR = 'no';
-            options.permute = 'yes';
-            options.CI = 'no';
-            options.center = true;
+            % Parallel GLM
+            % Here!!! Model mismatch
+            nested2 = [];
+            [T, parglmo] = parglm(Xm, F, 'Warning', false, 'Parallel', false, 'Model', model, 'Preprocessing', prep, 'Permutations', nPerm, 'Ts', ts, 'Ordinal', ordinal, 'Random', random, 'Fmtc', fmtc, 'Coding', coding, 'Nested', nested2);
+            % End Here
 
-            if prep == 2
-                [Xm,m,sd] = preprocess2D(Xm,'Preprocessing',2);
-                Xm = Xm + ones(size(Xm,1),1)*m;
-            end
-
-            data2 = table();
-            data2.ID = F(:,3);
-            data2.ID(size(F,1)/2+1:end)=data2.ID(size(F,1)/2+1:end)+max(F(:,3));
-            data2.timepoint = F(:,2);
-            data2.treatment = F(:,1);
-            Y = array2table(Xm);
-            data = [data2, Y];
-
-            options.Y_vars = data.Properties.VariableNames(4:end);
-
-            [MB, MA, MAB, MC] = RM_LiMM_PCA_simV(data, options);
-
-            %[T, parglmo] = parglm(Xm, F, 'Model', model, 'Preprocessing', prep, 'Permutations', nPerm, 'Ts', ts, 'Ordinal', ordinal, 'Random', random, 'Fmtc', fmtc, 'Coding', coding, 'Nested', nested2);
-            %powercurveo.T{i2,a} = T;
+            Ts{a} = T;
             
-            % For SS
-            parglmo.p = [MA.pval_perm1p MB.pval_perm1p MC.pval_perm1p MAB.pval_perm1p]; 
             for o = 1:length(powercurveo.coeffs)
                 if parglmo.p(o) <= alpha
-                    eD(a,o,i2) = 1;
+                    eD(a,o) = 1;
                 end
             end
-
-            % For Fratio (fixed)
-            parglmo.p = [MA.pval_perm2p MB.pval_perm2p MC.pval_perm2p MAB.pval_perm2p];
-            for o = 1:length(powercurveo.coeffs)
-                if parglmo.p(o) <= alpha
-                    eD(a,o+length(powercurveo.coeffs),i2) = 1;
-                end
-            end
-
-            % For Fratio
-            parglmo.p = [MA.pval_perm3p MB.pval_perm3p MC.pval_perm3p MAB.pval_perm3p];
-            for o = 1:length(powercurveo.coeffs)
-                if parglmo.p(o) <= alpha
-                    eD(a,o+length(powercurveo.coeffs)*2,i2) = 1;
-                end
-            end
-
-
-           % End Here
         end
         
      else % Absolute PCs

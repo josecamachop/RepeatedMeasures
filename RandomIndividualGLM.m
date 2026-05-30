@@ -11,7 +11,7 @@
 %   - MEDA Toolbox v1.13 at https://github.com/codaslab/MEDA-Toolbox    
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 29/May/2026
+% last modification: 30/May/2026
 %
 % Copyright (C) 2026  University of Granada, Granada
 % 
@@ -37,8 +37,8 @@ which('powercurve2.m')
 which('powercurve3.m')
 
 proctime = nan(6,6);
-perm = 100;
-rep = 100;
+perm = 200;
+rep = 200;
 alpha = 0.05;
 
 %% Null test: A without main effect but with individual random effect nested in A: best approach F-ratio as the test statistic considering C(A) random nested in A

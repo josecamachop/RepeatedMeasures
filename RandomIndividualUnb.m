@@ -11,7 +11,7 @@
 %   - MEDA Toolbox v1.13 at https://github.com/codaslab/MEDA-Toolbox    
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 29/May/2026
+% last modification: 30/May/2026
 %
 % Copyright (C) 2026  University of Granada, Granada
 % 
@@ -38,8 +38,8 @@ which('powercurve3.m')
 which('powercurve4.m')
 
 proctime = nan(2,6);
-perm = 100;
-rep = 100;
+perm = 200;
+rep = 200;
 alpha = 0.05;
 unb = 0.2; % percentage of missing samples
 

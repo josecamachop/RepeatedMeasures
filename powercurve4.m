@@ -682,7 +682,7 @@ function [eD,Ts] = corePower(powercurveo,F,npcs)
         M = size(X, 2);
     end
 
-    eD = zeros(length(theta),length(powercurveo.coeffs));
+    eD = zeros(length(theta),3*length(powercurveo.coeffs));
 
    if type == 1 % Relative PCs
         
@@ -786,7 +786,7 @@ function [eD,Ts] = corePower(powercurveo,F,npcs)
             parglmo.p = [MA.pval_perm1p MB.pval_perm1p MC.pval_perm1p MAB.pval_perm1p]; 
             for o = 1:length(powercurveo.coeffs)
                 if parglmo.p(o) <= alpha
-                    eD(a,o,i2) = 1;
+                    eD(a,o) = 1;
                 end
             end
 
@@ -794,7 +794,7 @@ function [eD,Ts] = corePower(powercurveo,F,npcs)
             parglmo.p = [MA.pval_perm2p MB.pval_perm2p MC.pval_perm2p MAB.pval_perm2p];
             for o = 1:length(powercurveo.coeffs)
                 if parglmo.p(o) <= alpha
-                    eD(a,o+length(powercurveo.coeffs),i2) = 1;
+                    eD(a,o+length(powercurveo.coeffs)) = 1;
                 end
             end
 
@@ -802,7 +802,7 @@ function [eD,Ts] = corePower(powercurveo,F,npcs)
             parglmo.p = [MA.pval_perm3p MB.pval_perm3p MC.pval_perm3p MAB.pval_perm3p];
             for o = 1:length(powercurveo.coeffs)
                 if parglmo.p(o) <= alpha
-                    eD(a,o+length(powercurveo.coeffs)*2,i2) = 1;
+                    eD(a,o+length(powercurveo.coeffs)*2) = 1;
                 end
             end
 

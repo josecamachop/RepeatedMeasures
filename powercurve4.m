@@ -1,4 +1,4 @@
-function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
+function [PCmean, PCrep, powercurveo, H] = powercurve(X, F, varargin)
 
 % ASCA Power Curves (PCs). We derive four different types of PCs organized 
 % in two taxonomies. On the one hand, we distinguish Population PCs from 
@@ -533,8 +533,60 @@ PCrep = eD;
 
 %% Show results
 
-figure;
-spcBootstrap(theta,PCrep,nRep,true,0.05,false);    
+
+%% Show results SS
+
+h1=figure;
+spcBootstrap(theta,PCrep(:,1:4,:),nRep,true,0.05,false);    
+if type == 1 % Relative PCs
+    
+    xlabel('Effect size (\theta)','FontSize', 16);
+    
+    if isstruct(X)
+        title('Relative Population Curve','FontSize', 16);
+    else
+        title('Relative Sample Curve','FontSize', 16);
+    end
+else
+    xlabel('Number of replicates (\eta)','FontSize', 16);
+    
+    if isstruct(X)
+        title('Absolute Population Curve','FontSize', 16);
+    else
+        title('Absolute Sample Curve','FontSize', 16);
+    end
+end
+ylabel('Power (SS)','FontSize', 16);
+
+%% Show results F-ratio fixed
+
+h2=figure;
+spcBootstrap(theta,PCrep(:,5:8,:),nRep,true,0.05,false);    
+if type == 1 % Relative PCs
+    
+    xlabel('Effect size (\theta)','FontSize', 16);
+    
+    if isstruct(X)
+        title('Relative Population Curve','FontSize', 16);
+    else
+        title('Relative Sample Curve','FontSize', 16);
+    end
+else
+    xlabel('Number of replicates (\eta)','FontSize', 16);
+    
+    if isstruct(X)
+        title('Absolute Population Curve','FontSize', 16);
+    else
+        title('Absolute Sample Curve','FontSize', 16);
+    end
+end
+ylabel('Power (F fixed)','FontSize', 16);
+
+
+%% Show results F-ratio random
+
+h3=figure;
+spcBootstrap(theta,PCrep(:,9:12,:),nRep,true,0.05,false);    
 if type == 1 % Relative PCs
     
     xlabel('Effect size (\theta)','FontSize', 16);
@@ -554,6 +606,8 @@ else
     end
 end
 ylabel('Power','FontSize', 16);
+
+H = [h1 h2 h3];
 
 end
 

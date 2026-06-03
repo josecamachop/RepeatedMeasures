@@ -517,16 +517,15 @@ eD = zeros(length(theta),3*length(powercurveo.coeffs),nRep);
 % End Here
 
 T = {};
-for i2=1:nRep
+parfor i2=1:nRep
     
     %disp(i2)
     
     rng(i2);
     
-    [eD(:,:,i2),T(i2,:)] = corePower(powercurveo,F,npcs); % HERE npcs
+    eD(:,:,i2) = corePower(powercurveo,F,npcs); % HERE npcs
     
 end
-powercurveo.T = T;
 
 PCmean = mean(eD,3);
 PCrep = eD; 
@@ -651,7 +650,7 @@ function Dout = computaDint(interactions,factors,D) % Compute coding matrix
 end
 
 
-function [eD,Ts] = corePower(powercurveo,F,npcs)
+function eD = corePower(powercurveo,F,npcs)
 
     F2 = F;   
     powercurveo2 = powercurveo;

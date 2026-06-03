@@ -7,9 +7,9 @@ This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
       -->
 <title>RandomIndividualGLM</title>
-<meta name="generator" content="MATLAB 24.2">
+<meta name="generator" content="MATLAB 26.1">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-05-29">
+<meta name="DC.date" content="2026-06-02">
 <meta name="DC.source" content="RandomIndividualGLM.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -110,7 +110,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <span class="comment">%   - MEDA Toolbox v1.13 at https://github.com/codaslab/MEDA-Toolbox</span>
 <span class="comment">%</span>
 <span class="comment">% coded by: Jose Camacho (josecamacho@ugr.es)</span>
-<span class="comment">% last modification: 29/May/2026</span>
+<span class="comment">% last modification: 30/May/2026</span>
 <span class="comment">%</span>
 <span class="comment">% Copyright (C) 2026  University of Granada, Granada</span>
 <span class="comment">%</span>
@@ -136,13 +136,13 @@ which(<span class="string">'powercurve2.m'</span>)
 which(<span class="string">'powercurve3.m'</span>)
 
 proctime = nan(6,6);
-perm = 100;
-rep = 100;
+perm = 200;
+rep = 200;
 alpha = 0.05;
 </pre>
-<pre class="codeoutput">D:\Curro\Software\MEDA-Toolbox\toolbox\anova\powercurve.m
-D:\Curro\Software\Papers\RepeatedMeasures\powercurve2.m
-D:\Curro\Software\Papers\RepeatedMeasures\powercurve3.m
+<pre class="codeoutput">C:\Users\Pepe\Documents\GitHub\MEDA-Toolbox\toolbox\anova\powercurve.m
+C:\Users\Pepe\Documents\GitHub\RepeatedMeasures\powercurve2.m
+C:\Users\Pepe\Documents\GitHub\RepeatedMeasures\powercurve3.m
 </pre>
 <h2 id="2">Null test: A without main effect but with individual random effect nested in A: best approach F-ratio as the test statistic considering C(A) random nested in A</h2>
 <pre class="codeinput">test = 1;
@@ -190,6 +190,9 @@ legend(<span class="string">'Factor A'</span>,<span class="string">'Factor B'</s
 axis([0 1 0 1]); saveas(gcf,sprintf(<span class="string">'Figures/Figure_%d_%d'</span>,test,i));saveas(gcf,sprintf(<span class="string">'Figures/Figure_%d_%d.png'</span>,test,i));
 
 save <span class="string">RIGLM</span> <span class="string">proctime</span> <span class="string">PCmean</span> <span class="string">PCrep</span> <span class="string">powercurveo</span>
+</pre>
+<pre class="codeoutput">Starting parallel pool (parpool) using the 'Processes' profile ...
+Connected to parallel pool with 8 workers.
 </pre>
 <img vspace="5" hspace="5" src="RandomIndividualGLM_01.png" alt=""> <img vspace="5" hspace="5" src="RandomIndividualGLM_02.png" alt=""> <img vspace="5" hspace="5" src="RandomIndividualGLM_03.png" alt=""> <img vspace="5" hspace="5" src="RandomIndividualGLM_04.png" alt=""> <img vspace="5" hspace="5" src="RandomIndividualGLM_05.png" alt=""> <h2 id="3">Positive test: all factors and interaction active: best approach F-ratio as the test statistic considering C(A) random nested in A</h2>
 <pre class="codeinput">test = 2;
@@ -412,18 +415,18 @@ disp(tpt)
 <pre class="codeoutput">             withoutC    crossedC      SS      fixedF    randomF    LMM
              ________    ________    ______    ______    _______    ___
 
-    test1     9.4644      14.002     11.848    14.302    14.418     NaN
-    test2     8.6887      13.545     11.524    14.801    15.553     NaN
-    test3      8.699      13.334      11.09    13.883    13.826     NaN
-    test4     8.7552      13.425     11.065    13.916    14.101     NaN
-    test5     8.8349      13.483      11.17    13.411    13.563     NaN
-    test6     9.1645      13.467      10.79    13.964    13.577     NaN
-    MEAN      8.9345      13.543     11.248    14.046    14.173     NaN
+    test1     15.134      4.8324     4.1459    5.6686    5.1921     NaN
+    test2     2.4182      4.2397     3.6232    4.7664    4.9854     NaN
+    test3     2.3748        4.18     3.7166    4.9436    4.6976     NaN
+    test4     2.1229       4.085     3.5913    4.7523    4.6573     NaN
+    test5     2.1265      4.3812     3.7621    4.7906    4.6306     NaN
+    test6     2.2309      4.3224     3.6788    4.6654    4.6327     NaN
+    MEAN      4.4013      4.3401      3.753    4.9312    4.7993     NaN
 
 </pre>
 <p class="footer">
 <br>
-<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2024b</a>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2026a</a>
 <br>
 </p>
 </div>
@@ -442,7 +445,7 @@ disp(tpt)
 %   - MEDA Toolbox v1.13 at https://github.com/codaslab/MEDA-Toolbox    
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 29/May/2026
+% last modification: 30/May/2026
 %
 % Copyright (C) 2026  University of Granada, Granada
 % 
@@ -468,8 +471,8 @@ which('powercurve2.m')
 which('powercurve3.m')
 
 proctime = nan(6,6);
-perm = 100;
-rep = 100;
+perm = 200;
+rep = 200;
 alpha = 0.05;
 
 %% Null test: A without main effect but with individual random effect nested in A: best approach F-ratio as the test statistic considering C(A) random nested in A
